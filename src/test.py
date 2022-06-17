@@ -5,6 +5,7 @@ from math import pi, tau, dist, fabs, cos
 import geometry_msgs.msg
 import time
 from moveit_commander.conversions import pose_to_list
+import copy
 
 
 rospy.init_node("panda_demo") # initialise ros node
@@ -49,11 +50,32 @@ print("here")
 # move_group.go(joint_goal, wait=True)
 # move_group.stop()
 
-print(move_group.get_current_pose().pose)
+# print(move_group.get_current_pose().pose)
+def create_waypoints(scale):
+    waypoints = []
 
-move_group.clear_pose_targets()
-start_joint = [-0.19333428149474294, 0.5048194100647642, -0.43928309223526396, -1.8295536556600331, 0.28863922601275976, 2.284271209769779, 0.06178933320965331]
-move_group.go(start_joint, wait=True)
+    wpose = move_group.get_current_pose().pose
+    wpose.position.z += scale * 0.1  # First move up (z)
+    wpose.position.y += scale * 0.2  # and sideways (y)
+    waypoints.append(copy.deepcopy(wpose))
+
+    wpose.position.x += scale * -0.1  # Second move forward/backwards in (x)
+    waypoints.append(copy.deepcopy(wpose))
+
+    wpose.position.y -= scale * 0.1  # Third move sideways (y)
+    waypoints.append(copy.deepcopy(wpose))
+
+    (plan, fraction) = move_group.compute_cartesian_path(
+        waypoints, 0.01, 0.0  # waypoints to follow  # eef_step
+    )  # jump_threshold
+
+    # Note: We are just planning, not asking move_group to actually move the robot yet:
+    return plan, fraction
+
+
+new_plan, fraction = create_waypoints(0.1)
+print(type(new_plan))
+move_group.execute(new_plan, wait=True)
 move_group.stop()
 move_group.clear_pose_targets()
 
@@ -69,15 +91,17 @@ move_group.clear_pose_targets()
 # move_group.go(joint_goal, wait=True)
 # move_group.stop()
 
+# print(move_group.get_current_pose().pose)
 # pose_goal = geometry_msgs.msg.Pose()
-# pose_goal.orientation.w = 1.0
+# pose_goal.orientation.w = 0
 # pose_goal.position.x = 0.4
-# pose_goal.position.y = 0.1
+# pose_goal.position.y = -0.25
 # pose_goal.position.z = 0.4
 
 # move_group.set_pose_target(pose_goal)
 # plan = move_group.go(wait=True)
-
+# move_group.clear_pose_targets()
+# print(move_group.get_current_pose().pose)
 
 
 #r = PandaArm() # create PandaArm instance
