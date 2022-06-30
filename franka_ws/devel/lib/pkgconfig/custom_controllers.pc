@@ -1,0 +1,8 @@
+prefix=/home/arundev/franka_ws/devel
+
+Name: custom_controllers
+Description: Description of custom_controllers
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

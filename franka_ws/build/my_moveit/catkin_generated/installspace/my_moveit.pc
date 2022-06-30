@@ -1,0 +1,8 @@
+prefix=/home/arundev/franka_ws/install
+
+Name: my_moveit
+Description: Description of my_moveit
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
